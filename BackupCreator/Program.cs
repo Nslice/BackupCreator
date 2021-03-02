@@ -28,11 +28,11 @@ namespace BackupCreator
                var backuper = new BackupCreator(connection, config);
                string bakFileName = backuper.BackupDatabase();
 
-               Console.WriteLine("\nCreating ZIP archive started...");
+               Console.WriteLine("\n\nCreating ZIP archive started...");
                backuper.CreateZip(bakFileName);
 
                backuper.DeleteBakFile(bakFileName);
-               Console.WriteLine("Success!");
+               Console.WriteLine("SUCCESS!");
             }
          }
 
@@ -97,7 +97,7 @@ namespace BackupCreator
             if (info.Class > 10)
                Console.WriteLine(info);
             else
-               Console.WriteLine(info.Message);
+               Console.Write($"\r\r\r\r\r\r\r\r\r\r\r\r\\r\r\r\r\r\r\r\r\r\r\r\r\r\r{info.Message}");
          }
       }
 
@@ -111,11 +111,23 @@ namespace BackupCreator
             ZipArchiveEntry entry = archive.CreateEntry(backupFileName);
             entry.LastWriteTime = DateTimeOffset.Now;
 
-            using (FileStream stream = File.OpenRead(Path.Combine(_config.BackupPath, backupFileName)))
+            using (FileStream input = File.OpenRead(Path.Combine(_config.BackupPath, backupFileName)))
             using (Stream entryStream = entry.Open())
             {
-               //TODO: сделать приделать прогресс на архивацию
-               stream.CopyTo(entryStream);
+               //TODO: сделать приделать прогресс на архивацию https://stackoverflow.com/questions/22857713/stream-copyto-with-progress-bar-reporting
+               byte[] buffer = new byte[16 * 1024];
+               int read;
+               long progress = 0;
+               long fileLength = input.Length;
+               Console.WriteLine("Progress:");
+               while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+               {
+                  entryStream.Write(buffer, 0, read);
+                  progress += read;
+                  int percent = Convert.ToInt32(100.0f / fileLength * progress);
+                  Console.Write($"\r\r\r\r{percent}%");
+               }
+               Console.WriteLine();
             }
          }
 
