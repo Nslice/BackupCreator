@@ -1,0 +1,9 @@
+#Rider:
+.idea/
+
+#Visual Studio:
+.vs/
+*.user
+bin/
+obj/
+packages/
